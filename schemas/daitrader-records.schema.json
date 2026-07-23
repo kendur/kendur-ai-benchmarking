@@ -1,0 +1,258 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/kendur/kendur-ai-benchmarking/schemas/daitrader-records.schema.json",
+  "title": "dAItrader Record Contracts",
+  "description": "Platform-neutral contracts for the dAItrader paper-market benchmark. All monetary activity is fictional.",
+  "$defs": {
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "money": {
+      "type": "number"
+    },
+    "percentage": {
+      "type": "number"
+    },
+    "source": {
+      "type": "object",
+      "required": ["url", "accessed_at"],
+      "properties": {
+        "url": { "type": "string", "format": "uri" },
+        "title": { "type": "string" },
+        "publisher": { "type": "string" },
+        "published_at": { "$ref": "#/$defs/timestamp" },
+        "accessed_at": { "$ref": "#/$defs/timestamp" },
+        "data_timestamp": { "$ref": "#/$defs/timestamp" },
+        "quality": { "enum": ["primary", "secondary", "unverified"] },
+        "notes": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "run_metadata": {
+      "type": "object",
+      "required": [
+        "contender_id",
+        "provider",
+        "platform",
+        "model",
+        "prompt_version",
+        "cohort_id",
+        "isolation_key",
+        "run_started_at",
+        "timezone",
+        "information_cutoff",
+        "run_mode"
+      ],
+      "properties": {
+        "contender_id": { "type": "string" },
+        "provider": { "type": "string" },
+        "platform": { "type": "string" },
+        "model": { "type": "string" },
+        "prompt_version": { "type": "string" },
+        "cohort_id": { "type": "string" },
+        "cohort_version": { "type": "string" },
+        "isolation_key": { "type": "string" },
+        "run_started_at": { "$ref": "#/$defs/timestamp" },
+        "run_completed_at": { "$ref": "#/$defs/timestamp" },
+        "timezone": { "type": "string" },
+        "information_cutoff": { "$ref": "#/$defs/timestamp" },
+        "cycle_type": { "type": "string" },
+        "run_mode": { "enum": ["dry_test", "scored", "incident_recovery"] },
+        "tools_used": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": false
+    },
+    "journal_entry": {
+      "type": "object",
+      "required": [
+        "entry_id",
+        "run",
+        "entry_type",
+        "submitted_at",
+        "hypothesis",
+        "rule_check",
+        "sources"
+      ],
+      "properties": {
+        "entry_id": { "type": "string" },
+        "run": { "$ref": "#/$defs/run_metadata" },
+        "entry_type": {
+          "enum": [
+            "platform_comparison",
+            "simulation_strategy",
+            "watchlist_add",
+            "watchlist_remove",
+            "hypothetical_position",
+            "no_position",
+            "risk_reduction",
+            "research_finding",
+            "rule_interpretation"
+          ]
+        },
+        "submitted_at": { "$ref": "#/$defs/timestamp" },
+        "symbols": { "type": "array", "items": { "type": "string" } },
+        "market_regime": { "type": "string" },
+        "hypothesis": { "type": "string" },
+        "forecast_horizon": { "type": "string" },
+        "expected_outcome": { "type": "string" },
+        "invalidation_condition": { "type": "string" },
+        "confidence_percent": { "$ref": "#/$defs/percentage" },
+        "evidence_summary": { "type": "string" },
+        "simulated_cost_impact": { "$ref": "#/$defs/money" },
+        "rule_check": { "enum": ["pass", "review", "fail"] },
+        "supersedes_entry_id": { "type": "string" },
+        "sources": { "type": "array", "items": { "$ref": "#/$defs/source" } }
+      },
+      "additionalProperties": false
+    },
+    "ledger_item": {
+      "type": "object",
+      "required": [
+        "ledger_id",
+        "contender_id",
+        "cohort_id",
+        "journal_entry_id",
+        "symbol",
+        "asset_type",
+        "direction",
+        "status",
+        "quantity",
+        "source_timestamp"
+      ],
+      "properties": {
+        "ledger_id": { "type": "string" },
+        "contender_id": { "type": "string" },
+        "cohort_id": { "type": "string" },
+        "journal_entry_id": { "type": "string" },
+        "symbol": { "type": "string" },
+        "asset_type": { "type": "string" },
+        "direction": { "enum": ["long", "short"] },
+        "status": { "enum": ["proposed", "open", "closed", "rejected", "invalid"] },
+        "simulation_order_type": { "type": "string" },
+        "opened_at": { "$ref": "#/$defs/timestamp" },
+        "closed_at": { "$ref": "#/$defs/timestamp" },
+        "quantity": { "type": "number", "exclusiveMinimum": 0 },
+        "proposed_price": { "$ref": "#/$defs/money" },
+        "simulated_entry": { "$ref": "#/$defs/money" },
+        "simulated_exit": { "$ref": "#/$defs/money" },
+        "position_value": { "$ref": "#/$defs/money" },
+        "gross_result": { "$ref": "#/$defs/money" },
+        "broker_fees": { "$ref": "#/$defs/money" },
+        "tool_cost": { "$ref": "#/$defs/money" },
+        "slippage_cost": { "$ref": "#/$defs/money" },
+        "other_cost": { "$ref": "#/$defs/money" },
+        "net_result": { "$ref": "#/$defs/money" },
+        "return_percent": { "$ref": "#/$defs/percentage" },
+        "stop_level": { "$ref": "#/$defs/money" },
+        "target_level": { "$ref": "#/$defs/money" },
+        "source_timestamp": { "$ref": "#/$defs/timestamp" },
+        "rule_exception": { "type": "boolean" },
+        "exception_notes": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "daily_snapshot": {
+      "type": "object",
+      "required": [
+        "snapshot_id",
+        "contender_id",
+        "cohort_id",
+        "snapshot_date",
+        "active_day",
+        "cash",
+        "position_value",
+        "total_equity",
+        "daily_return_percent",
+        "cumulative_return_percent",
+        "drawdown_percent",
+        "matched_benchmark_return_percent",
+        "excess_return_percent"
+      ],
+      "properties": {
+        "snapshot_id": { "type": "string" },
+        "contender_id": { "type": "string" },
+        "cohort_id": { "type": "string" },
+        "snapshot_date": { "type": "string", "format": "date" },
+        "data_timestamp": { "$ref": "#/$defs/timestamp" },
+        "active_day": { "type": "integer", "minimum": 1 },
+        "cash": { "$ref": "#/$defs/money" },
+        "position_value": { "$ref": "#/$defs/money" },
+        "total_equity": { "$ref": "#/$defs/money" },
+        "daily_result": { "$ref": "#/$defs/money" },
+        "daily_return_percent": { "$ref": "#/$defs/percentage" },
+        "cumulative_return_percent": { "$ref": "#/$defs/percentage" },
+        "peak_equity": { "$ref": "#/$defs/money" },
+        "drawdown_percent": { "$ref": "#/$defs/percentage" },
+        "gross_exposure_percent": { "$ref": "#/$defs/percentage" },
+        "net_exposure_percent": { "$ref": "#/$defs/percentage" },
+        "open_positions": { "type": "integer", "minimum": 0 },
+        "cumulative_broker_fees": { "$ref": "#/$defs/money" },
+        "cumulative_tool_costs": { "$ref": "#/$defs/money" },
+        "cumulative_slippage": { "$ref": "#/$defs/money" },
+        "matched_benchmark_return_percent": { "$ref": "#/$defs/percentage" },
+        "excess_return_percent": { "$ref": "#/$defs/percentage" },
+        "rule_breaches": { "type": "integer", "minimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "scorecard": {
+      "type": "object",
+      "required": [
+        "report_id",
+        "contender_id",
+        "cohort_id",
+        "report_type",
+        "period_start",
+        "period_end",
+        "active_days",
+        "net_return_percent",
+        "matched_benchmark_return_percent",
+        "excess_return_percent",
+        "max_drawdown_percent",
+        "total_costs",
+        "cost_drag_percent",
+        "rule_compliance_percent",
+        "composite_score"
+      ],
+      "properties": {
+        "report_id": { "type": "string" },
+        "contender_id": { "type": "string" },
+        "cohort_id": { "type": "string" },
+        "report_type": { "type": "string" },
+        "period_start": { "type": "string", "format": "date" },
+        "period_end": { "type": "string", "format": "date" },
+        "active_days": { "type": "integer", "minimum": 1 },
+        "starting_equity": { "$ref": "#/$defs/money" },
+        "ending_equity": { "$ref": "#/$defs/money" },
+        "net_result": { "$ref": "#/$defs/money" },
+        "net_return_percent": { "$ref": "#/$defs/percentage" },
+        "return_per_active_day_percent": { "$ref": "#/$defs/percentage" },
+        "matched_benchmark_return_percent": { "$ref": "#/$defs/percentage" },
+        "excess_return_percent": { "$ref": "#/$defs/percentage" },
+        "volatility_percent": { "$ref": "#/$defs/percentage" },
+        "max_drawdown_percent": { "$ref": "#/$defs/percentage" },
+        "risk_adjusted_return": { "type": "number" },
+        "closed_positions": { "type": "integer", "minimum": 0 },
+        "win_rate_percent": { "$ref": "#/$defs/percentage" },
+        "profit_factor": { "type": "number" },
+        "average_win": { "$ref": "#/$defs/money" },
+        "average_loss": { "$ref": "#/$defs/money" },
+        "total_costs": { "$ref": "#/$defs/money" },
+        "cost_drag_percent": { "$ref": "#/$defs/percentage" },
+        "rule_compliance_percent": { "$ref": "#/$defs/percentage" },
+        "research_quality_percent": { "$ref": "#/$defs/percentage" },
+        "documentation_quality_percent": { "$ref": "#/$defs/percentage" },
+        "composite_score": { "type": "number", "minimum": 0, "maximum": 100 },
+        "normalized_rank": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "oneOf": [
+    { "$ref": "#/$defs/journal_entry" },
+    { "$ref": "#/$defs/ledger_item" },
+    { "$ref": "#/$defs/daily_snapshot" },
+    { "$ref": "#/$defs/scorecard" }
+  ]
+}
